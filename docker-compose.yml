@@ -1,0 +1,33 @@
+﻿networks:
+  studentnetwork:
+
+services:
+  mssql-container:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sql_server
+    ports:
+      - "8002:1433"
+    environment:
+      SA_PASSWORD: "Buidoichoc@@@123"
+      ACCEPT_EULA: "Y"
+    networks:
+      - studentnetwork
+    volumes:
+      - sql_data:/var/opt/mssql
+
+  student:
+    image: ${DOCKER_REGISTRY-}student
+    build:
+      context: .
+      dockerfile: student/Dockerfile
+    ports:
+      - "8088:80"
+    environment:
+      - ASPNETCORE_HTTP_PORTS=80
+    networks:
+      - studentnetwork
+    depends_on:
+      - mssql-container
+
+volumes:
+  sql_data:
